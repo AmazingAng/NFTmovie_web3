@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+<title>链影</title>
+
+<header>
+    <h2>Connect to metamask</h2>
+    <button id="btnConnect" class="btn" >Connect</button> <br>
+    <hr>
+
+    <h2>Approve NFT to contract</h2>
+    <form name="approveForm">
+        <label for="approveTokenId">Token ID</label>
+        <small id="approveHelp" class="form-text text-muted" style="color:red"></small>
+        <input type="number" id="approveTokenId" min="0" aria-describedby="approveHelp"  placeholder="0"  name="tokenid">
+    </form>
+    <button id="btnApprove" class="btn" >Approve</button>
+    <hr>
+
+    <h2>Sell NFT on market</h2>
+    <form name="sellForm">
+        <label for="TokenId">Token ID</label>
+        <small id="sellHelp" class="form-text text-muted" style="color:red"></small>
+        <input type="number" id="TokenId" min="0" aria-describedby="approveHelp"  placeholder="0"  name="tokenid">
+        <br>
+        <label for="SellPrice">Sell Price</label>
+        <small id="sellHelp" class="form-text text-muted" style="color:red"></small>
+        <input type="number" id="SellPrice" min="0" aria-describedby="sellHelp"  placeholder="0"  name="price">
+
+    </form>
+    <button id="btnSell" class="btn" >Sell</button>
+    <hr>
+
+    <h2>Buy NFT</h2>
+    <form name="buyForm">
+        <label for="buyTokenId">Token ID</label>
+        <small id="buyHelp" class="form-text text-muted" style="color:red"></small>
+        <input type="number" id="buyTokenId" min="0" aria-describedby="approveHelp"  placeholder="0"  name="tokenid">
+        <br>
+        <label for="buyPrice">Buy Price</label>
+        <small id="buyPriceHelp" class="form-text text-muted" style="color:red"></small>
+        <input type="number" id="buyPrice" min="0" aria-describedby="buyPriceHelp"  placeholder="10"  name="price" disabled>
+
+    </form>
+    <button id="btnBuy" class="btn" >Buy</button>
+    <hr>
+
+</header>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/web3/3.0.0-rc.5/web3.min.js" integrity="sha512-jRzb6jM5wynT5UHyMW2+SD+yLsYPEU5uftImpzOcVTdu1J7VsynVmiuFTsitsoL5PJVQi+OtWbrpWq/I+kkF4Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script type="text/javascript">
+    const contractAddresses = {
+        'Market':"",
+        'MovieNFT':"",
+    }
+
+    const contractABI = {
+        'Market':"",
+        'MovieNFT':"",
+    }
+
+    const btnConnect = document.querySelector('#btnConnect');
+    btnConnect.addEventListener('click', async () => {
+      connect();
+    });
+
+    const btnApprove = document.querySelector('#btnApprove');
+    btnApprove.addEventListener('click', async () => {
+        approve();
+    });
+
+    const btnSell = document.querySelector('#btnSell');
+    btnSell.addEventListener('click', async () => {
+        sell();
+    });
+
+    const btnBuy = document.querySelector('#btnBuy');
+    btnBuy.addEventListener('click', async () => {
+        buy();
+    });
+
+
+
+    async function connect(){
+    if (window.ethereum._metamask) {
+        isUnlocked = await window.ethereum._metamask.isUnlocked()
+        window.web3 = new Web3(ethereum);
+        if (isUnlocked) {
+          const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+          const account = accounts[0];
+          btnConnect.style.display = 'block';
+          btnConnect.innerHTML = account.substring(0,4)+"..."+account.slice(account.length - 4);
+          btnConnect.disabled = false;
+          const eth_chainId = await ethereum.request({ method: 'eth_chainId' });
+                  console.log('#net-'+eth_chainId);
+        }
+      }
+    }
+
+    async function approve() {
+        btnApprove.innerHTML = 'Approving ...';
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0];
+        const eth_chainId = await ethereum.request({ method: 'eth_chainId' });
+        var token_id = document.forms["approveForm"]["TokenId"].value;
+        console.log("token_id:" + token_id);
+
+        let MovieNFTContract = new web3.eth.Contract(JSON.parse(contractABI["MovieNFT"]), contractAddresses["MovieNFT"]);
+        // approve token_id NFT to sell contract
+        await MovieNFTContract.methods.approve(contractAddresses["sell"], token_id);
+        // Approved
+        btnApprove.innerHTML = "Approved";
+    }
+
+    async function sell() {
+        // get account
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0];
+
+        var tokenid = document.forms["sellForm"]["tokenid"].value;
+        var price = document.forms["sellForm"]["price"].value;
+        let sellContract = new web3.eth.Contract(JSON.parse(contractABI["Market"]), contractAddresses["Market"]);
+        sellContract.methods.sellOnMarket(tokenid, price).send({from: account});
+    }
+
+    async function buy() {
+        // get account
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0];
+
+        var tokenid = document.forms["buyForm"]["tokenid"].value;
+        var price = document.forms["buyForm"]["price"].value;
+        let sellContract = new web3.eth.Contract(JSON.parse(contractABI["Market"]), contractAddresses["Market"]);
+        sellContract.methods.buyFromMarket(tokenid, price).send({from: account});
+    }
+
+
+
+
+</script>
