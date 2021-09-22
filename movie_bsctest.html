@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+<title>链影 BSC-testnet</title>
+
+<header>
+    <h2>Connect to metamask</h2>
+    <button id="btnConnect" class="btn" >Connect</button> <br>
+    <hr>
+
+    <h2>mint NFT </h2>
+    <form name="mintForm">
+        <label for="tokenURI">Token URI</label>
+        <small id="mintHelp" class="form-text text-muted" style="color:red"></small>
+        <input type="url" id="tokenURI" min="0" aria-describedby="mintHelp"  placeholder="https://github.com/"  name="tokenURI"> <br>
+        <label for="tokenURI">Mint Address</label>
+        <input type="text" id="mintAddresss" min="0" aria-describedby="mintHelp"  placeholder="" name="mintAddresss">
+    </form>
+    <button id="btnMint" class="btn" >Mint</button>
+    <hr>
+
+    <h2>NFT balance of an account</h2>
+    <form name="balanceForm">
+
+        <label for="balanceAddresss">Address</label>
+        
+        <small id="balanceHelp" class="form-text text-muted" style="color:red"></small>
+        <input type="text" id="balanceAddresss" min="0" aria-describedby="balanceHelp"  placeholder=""  name="balanceAddresss"><br>
+    </form>
+    <button id="btnBalance" class="btn" >Balance of</button><br>
+    <label id = "balanceResult">Balance: ?</label><br>
+
+    <hr>
+
+
+    <h2>Approve NFT to contract</h2>
+    <form name="approveForm">
+        <label for="approveTokenId">Token ID</label>
+        <small id="approveHelp" class="form-text text-muted" style="color:red"></small>
+        <input type="number" id="approveTokenId" min="0" aria-describedby="approveHelp"  placeholder="0"  name="tokenid"><br>
+        <label for="approveAddress">Approve Address</label>
+        <input type="text" id="approveAddress" min="0" aria-describedby="approveHelp"  placeholder=""  name="approveAddress"><br>
+
+    </form>
+    <button id="btnApprove" class="btn" >Approve</button>
+    <hr>
+
+    <h2>Transfer NFT from address to another address</h2>
+    <form name="transferForm">
+        <label for="transferTokenId">Token ID</label>
+        <small id="transferHelp" class="form-text text-muted" style="color:red"></small>
+        <input type="number" id="transferTokenId" min="0" aria-describedby="transferHelp"  placeholder="0"  name="tokenid"><br>
+        <label for="fromAddress">From Address</label>
+        <input type="text" id="fromAddress" min="0" aria-describedby="transferHelp"  placeholder=""  name="fromAddress"><br>
+        <label for="toAddress">To Address</label>
+        <input type="text" id="toAddress" min="0" aria-describedby="transferHelp"  placeholder=""  name="toAddress"><br>
+
+    </form>
+    <button id="btnTransfer" class="btn" >Transfer</button>
+    <hr>
+
+
+    <h2>Sell NFT on market (TODO)</h2>
+    <form name="sellForm">
+        <label for="TokenId">Token ID</label>
+        <small id="sellHelp" class="form-text text-muted" style="color:red"></small>
+        <input type="number" id="TokenId" min="0" aria-describedby="approveHelp"  placeholder="0"  name="tokenid">
+        <br>
+        <label for="SellPrice">Sell Price</label>
+        <small id="sellHelp" class="form-text text-muted" style="color:red"></small>
+        <input type="number" id="SellPrice" min="0" aria-describedby="sellHelp"  placeholder="0"  name="price">
+
+    </form>
+    <button id="btnSell" class="btn" >Sell</button>
+    <hr>
+
+    <h2>Buy NFT (TODO)</h2>
+    <form name="buyForm">
+        <label for="buyTokenId">Token ID</label>
+        <small id="buyHelp" class="form-text text-muted" style="color:red"></small>
+        <input type="number" id="buyTokenId" min="0" aria-describedby="approveHelp"  placeholder="0"  name="tokenid">
+        <br>
+        <label for="buyPrice">Buy Price</label>
+        <small id="buyPriceHelp" class="form-text text-muted" style="color:red"></small>
+        <input type="number" id="buyPrice" min="0" aria-describedby="buyPriceHelp"  placeholder="10"  name="price" disabled>
+
+    </form>
+    <button id="btnBuy" class="btn" >Buy</button>
+    <hr>
+
+</header>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/web3/3.0.0-rc.5/web3.min.js" integrity="sha512-jRzb6jM5wynT5UHyMW2+SD+yLsYPEU5uftImpzOcVTdu1J7VsynVmiuFTsitsoL5PJVQi+OtWbrpWq/I+kkF4Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+
+    const contractAddresses = {
+        'Market':"",
+        'MovieNFT':"0x61e9a80124F6447E62E7812A0DE793a1f7c42e4D",
+    }
+
+
+
+    const contractABI = {
+        'Market':"",
+        'MovieNFT':[
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "approved",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "Approval",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "approved",
+				"type": "bool"
+			}
+		],
+		"name": "ApprovalForAll",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "Paused",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "role",
+				"type": "bytes32"
+			},
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "previousAdminRole",
+				"type": "bytes32"
+			},
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "newAdminRole",
+				"type": "bytes32"
+			}
+		],
+		"name": "RoleAdminChanged",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "role",
+				"type": "bytes32"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			}
+		],
+		"name": "RoleGranted",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "role",
+				"type": "bytes32"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			}
+		],
+		"name": "RoleRevoked",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "Unpaused",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "approve",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "burn",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "role",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "grantRole",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			}
+		],
+		"name": "mint",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "pause",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "tokenURI",
+				"type": "string"
+			}
+		],
+		"name": "publishMovie",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "role",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "renounceRole",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "role",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "revokeRole",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "safeTransferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "_data",
+				"type": "bytes"
+			}
+		],
+		"name": "safeTransferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			},
+			{
+				"internalType": "bool",
+				"name": "approved",
+				"type": "bool"
+			}
+		],
+		"name": "setApprovalForAll",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "tokenURI",
+				"type": "string"
+			}
+		],
+		"name": "setTokenURI",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "unpause",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "DEFAULT_ADMIN_ROLE",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "getApproved",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getDefaultAdminRole",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getMsgSender",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "role",
+				"type": "bytes32"
+			}
+		],
+		"name": "getRoleAdmin",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "role",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "uint256",
+				"name": "index",
+				"type": "uint256"
+			}
+		],
+		"name": "getRoleMember",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "role",
+				"type": "bytes32"
+			}
+		],
+		"name": "getRoleMemberCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "role",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "hasRole",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			}
+		],
+		"name": "isApprovedForAll",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "MINTER_ROLE",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "ownerOf",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "paused",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "PAUSER_ROLE",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes4",
+				"name": "interfaceId",
+				"type": "bytes4"
+			}
+		],
+		"name": "supportsInterface",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "index",
+				"type": "uint256"
+			}
+		],
+		"name": "tokenByIndex",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "index",
+				"type": "uint256"
+			}
+		],
+		"name": "tokenOfOwnerByIndex",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "tokenURI",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalSupply",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+],
+    }
+
+    const textBalance = document.getElementById("balanceResult");
+    
+    const btnConnect = document.querySelector('#btnConnect');
+    btnConnect.addEventListener('click', async () => {
+      connect();
+    });
+
+    const btnMint = document.querySelector('#btnMint');
+    btnMint.addEventListener('click', async () => {
+      mint();
+    });
+
+    const btnBalance = document.querySelector('#btnBalance');
+    btnBalance.addEventListener('click', async () => {
+      balanceOf();
+    });
+
+
+    const btnApprove = document.querySelector('#btnApprove');
+    btnApprove.addEventListener('click', async () => {
+        approve();
+    });
+    
+    const btnTransfer = document.querySelector('#btnTransfer');
+    btnTransfer.addEventListener('click', async () => {
+        transferFrom();
+    });
+
+    const btnSell = document.querySelector('#btnSell');
+    btnSell.addEventListener('click', async () => {
+        sell();
+    });
+
+    const btnBuy = document.querySelector('#btnBuy');
+    btnBuy.addEventListener('click', async () => {
+        buy();
+    });
+
+
+
+    async function connect(){
+    if (window.ethereum._metamask) {
+        isUnlocked = await window.ethereum._metamask.isUnlocked()
+        window.web3 = new Web3(ethereum);
+        if (isUnlocked) {
+          const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+          const account = accounts[0];
+          btnConnect.style.display = 'block';
+          btnConnect.innerHTML = account.substring(0,4)+"..."+account.slice(account.length - 4);
+          btnConnect.disabled = false;
+          const eth_chainId = await ethereum.request({ method: 'eth_chainId' });
+                  console.log('#net-'+eth_chainId);
+        }
+      }
+    }
+
+    async function mint() {
+        btnMint.innerHTML = 'Minting ...';
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0];
+        const eth_chainId = await ethereum.request({ method: 'eth_chainId' });
+        var tokenURI = document.forms["mintForm"]["tokenURI"].value;
+        var inputAddress = document.forms["mintForm"]["mintAddresss"].value;
+
+        console.log("tokenURI:" + tokenURI);
+
+        let MovieNFTContract = new web3.eth.Contract(contractABI["MovieNFT"], contractAddresses["MovieNFT"]);
+        try {
+          console.log("Minting Movie Token");
+          await MovieNFTContract.methods.mint(inputAddress).send({ from: account, value: 0 });
+
+          btnMint.innerHTML = 'Mint';
+
+        } catch (error) {
+          console.error(error);
+          btnMint.innerHTML = 'Mint';
+        }
+    }
+
+    async function balanceOf() {
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0];
+        const eth_chainId = await ethereum.request({ method: 'eth_chainId' });
+
+        let MovieNFTContract = new web3.eth.Contract(contractABI["MovieNFT"], contractAddresses["MovieNFT"]);
+        try {
+            var inputAddress = document.forms["balanceForm"]["balanceAddresss"].value;
+            var result = await MovieNFTContract.methods.balanceOf(inputAddress).call();
+            console.log("balance: " + result);
+
+            textBalance.innerHTML = "balance: " + result;
+
+        } catch (error) {
+          console.error(error);
+        }
+    }
+
+    async function approve() {
+        btnApprove.innerHTML = 'Approving ...';
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0];
+        const eth_chainId = await ethereum.request({ method: 'eth_chainId' });
+        var token_id = document.forms["approveForm"]["approveTokenId"].value;
+        var approve_address = document.forms["approveForm"]["approveAddress"].value;
+        console.log("token_id:" + token_id);
+
+        let MovieNFTContract = new web3.eth.Contract(contractABI["MovieNFT"], contractAddresses["MovieNFT"]);
+        // approve token_id NFT to sell contract
+        await MovieNFTContract.methods.approve(approve_address, token_id).send({ from: account, });
+        // Approved
+        btnApprove.innerHTML = "Approved";
+    }
+
+    async function transferFrom() {
+        btnTransfer.innerHTML = 'Transfering ...';
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0];
+        const eth_chainId = await ethereum.request({ method: 'eth_chainId' });
+        var token_id = document.forms["transferForm"]["transferTokenId"].value;
+        var from_address = document.forms["transferForm"]["fromAddress"].value;
+        var to_address = document.forms["transferForm"]["toAddress"].value;
+
+        console.log("transfer token_id:" + token_id);
+
+        let MovieNFTContract = new web3.eth.Contract(contractABI["MovieNFT"], contractAddresses["MovieNFT"]);
+        // approve token_id NFT to sell contract
+        await MovieNFTContract.methods.safeTransferFrom(from_address, to_address, token_id).send({ from: account, });
+        // Approved
+        btnApprove.innerHTML = "Transferred";
+    }
+
+    async function sell() {
+        // get account
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0];
+
+        var tokenid = document.forms["sellForm"]["tokenid"].value;
+        var price = document.forms["sellForm"]["price"].value;
+        let sellContract = new web3.eth.Contract(JSON.parse(contractABI["Market"]), contractAddresses["Market"]);
+        sellContract.methods.sellOnMarket(tokenid, price).send({from: account});
+    }
+
+    async function buy() {
+        // get account
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        const account = accounts[0];
+
+        var tokenid = document.forms["buyForm"]["tokenid"].value;
+        var price = document.forms["buyForm"]["price"].value;
+        let sellContract = new web3.eth.Contract(JSON.parse(contractABI["Market"]), contractAddresses["Market"]);
+        sellContract.methods.buyFromMarket(tokenid, price).send({from: account});
+    }
+
+
+
+
+</script>
