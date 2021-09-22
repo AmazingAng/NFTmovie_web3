@@ -5,4 +5,4 @@
 2. 可以Mint NFT， 查询余额，approve，转移NFT。
 
 截图：
-<img src="snapshot.png" height="300">
+<img src="snapshot.png" height="600">
